@@ -1,0 +1,25 @@
+{
+  "name": "script",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node index.ts",
+    "check": "ts-node checkVideoFormat.ts",
+    "convert": "ts-node convertVideos.ts",
+    "cut": "ts-node cutVideos.ts",
+    "video": "ts-node video.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/fluent-ffmpeg": "^2.1.24",
+    "ffmpeg-static": "^5.2.0",
+    "fluent-ffmpeg": "^2.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.2",
+    "ts-node": "^10.9.1"
+  }
+}
