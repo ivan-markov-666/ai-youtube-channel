@@ -19,6 +19,7 @@
     "fluent-ffmpeg": "^2.1.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.40.1",
     "@types/node": "^20.10.2",
     "ts-node": "^10.9.1"
   }
