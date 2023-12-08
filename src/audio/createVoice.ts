@@ -58,71 +58,89 @@ export async function createVoice() {
     const englishText = removePrefixFromText(translatedText, prefixToRemove);
     const maximumAllowedCharactersNumber: number = Number(maximumAllowedCharactersNumberString);
     const textParts = splitTextIntoChunks(englishText, maximumAllowedCharactersNumber - 10);
-    const textToSpeachInputTextElement = `//*[@*='input_text']`;
-    await fillAndCheckInput(page, textToSpeachInputTextElement, textParts[0]);
-    await staticWait(2000); // Изчаква 5000 милисекунди (5 секунди)
-
-    /** Select Eric Voice */
-    const ericVoice = `//*[@id='radioPrimaryen-US-EricNeural']`;
-    const changePitchElement1 = `((//*[@*='irs-grid'])[1]/following-sibling::span)[1]`;
-    const changePitchElement2 = `((//*[@*='irs-grid'])[1]/following-sibling::span)[3]`;
-    const changePitchElement3 = `//*[@*='voice_pitch_bin']`;
-    const changeAudjustVoiceSpeedElement1 = `((//*[@*='irs-grid'])[2]/following-sibling::span)[1]`;
-    const changeAudjustVoiceSpeedElement2 = `((//*[@*='irs-grid'])[2]/following-sibling::span)[3]`;
-    const changeAudjustVoiceSpeedElement3 = `//*[@*='volume_range']`;
-    const changePitchAttribute = `style`;
-    const changePitchValue1 = `left: 0px; width: 45.1483%;`;
-    const changePitchValue2 = `left: 43.6655%;`;
-    const changePitchValue3 = `-5`;
-    const changeAudjustVoiceSpeedValue1 = `left: 0px; width: 41.2669%;`;
-    const changeAudjustVoiceSpeedValue2 = `left: 39.7842%;`;
-    const changeAudjustVoiceSpeedValue3 = `-18`;
-
-    await checkBox(page, ericVoice);
-
-    await changeElementAttribute(page, changePitchElement1, changePitchAttribute, changePitchValue1);
-    await changeElementAttribute(page, changePitchElement2, changePitchAttribute, changePitchValue2);
-    await changeElementAttribute(page, changePitchElement3, changePitchAttribute, changePitchValue3);
-    await changeElementAttribute(page, changeAudjustVoiceSpeedElement1, changePitchAttribute, changeAudjustVoiceSpeedValue1);
-    await changeElementAttribute(page, changeAudjustVoiceSpeedElement2, changePitchAttribute, changeAudjustVoiceSpeedValue2);
-    await changeElementAttribute(page, changeAudjustVoiceSpeedElement3, changePitchAttribute, changeAudjustVoiceSpeedValue3);
 
 
 
-    // Press the 'Convert Now' button.
-    const convertNowButtonElement = `//*[@*='Convert now']`;
-    await click(page, convertNowButtonElement);
 
-    // Download the audio file.
-    const downloadButtonElement = `//*[@*='btn-group']/a`;
-    const downloadLink = await getAttributeValue(page, downloadButtonElement, 'href');
-    if (downloadLink === null) {
-        throw new Error('Download link not found');
-    }
+        // Crawling all elements of the 'textParts' array and printing each element to the console.
+        for (const [index, textPart] of textParts.entries()) {
+            const textToSpeachInputTextElement = `//*[@*='input_text']`;
+            await fillAndCheckInput(page, textToSpeachInputTextElement, textPart);
+            await staticWait(2000); // Изчаква 5000 милисекунди (5 секунди)
+        
+            /** Select Eric Voice */
+            const ericVoice = `//*[@id='radioPrimaryen-US-EricNeural']`;
+            const changePitchElement1 = `((//*[@*='irs-grid'])[1]/following-sibling::span)[1]`;
+            const changePitchElement2 = `((//*[@*='irs-grid'])[1]/following-sibling::span)[3]`;
+            const changePitchElement3 = `//*[@*='voice_pitch_bin']`;
+            const changeAudjustVoiceSpeedElement1 = `((//*[@*='irs-grid'])[3]/following-sibling::span)[1]`;
+            const changeAudjustVoiceSpeedElement2 = `((//*[@*='irs-grid'])[3]/following-sibling::span)[3]`;
+            const changeAudjustVoiceSpeedElement3 = `//*[@*='volume_range']`;
+            const changePitchAttribute = `style`;
+            const changePitchValue1 = `left: 0px; width: 45.1483%;`;
+            const changePitchValue2 = `left: 43.6655%;`;
+            const changePitchValue3 = `-5`;
+            const changeAudjustVoiceSpeedValue1 = `left: 0px; width: 41.2669%;`;
+            const changeAudjustVoiceSpeedValue2 = `left: 39.7842%;`;
+            const changeAudjustVoiceSpeedValue3 = `-18`;
+        
+            await checkBox(page, ericVoice);
+        
+            await changeElementAttribute(page, changePitchElement1, changePitchAttribute, changePitchValue1);
+            await changeElementAttribute(page, changePitchElement2, changePitchAttribute, changePitchValue2);
+            await changeElementAttribute(page, changePitchElement3, changePitchAttribute, changePitchValue3);
+            await changeElementAttribute(page, changeAudjustVoiceSpeedElement1, changePitchAttribute, changeAudjustVoiceSpeedValue1);
+            await changeElementAttribute(page, changeAudjustVoiceSpeedElement2, changePitchAttribute, changeAudjustVoiceSpeedValue2);
+            await changeElementAttribute(page, changeAudjustVoiceSpeedElement3, changePitchAttribute, changeAudjustVoiceSpeedValue3);
+        
+        
+        
+            // Press the 'Convert Now' button.
+            const convertNowButtonElement = `//*[@*='Convert now']`;
+            await click(page, convertNowButtonElement);
+        
+            // Download the audio file.
+            const downloadButtonElement = `//*[@*='btn-group']/a`;
+            const downloadLink = await getAttributeValue(page, downloadButtonElement, 'href');
+            if (downloadLink === null) {
+                throw new Error('Download link not found');
+            }
+        
+            // Download the file and verify that the size of the downloaded file is the same as the expected size.
+            try {
+                const expectedSize = await getFileSize(downloadLink);
+                console.log(`Expected file size: ${expectedSize} bytes`);
+        
+                await downloadFile(downloadLink, `C:/Users/test657/Desktop/script/audio/downloaded/downloaded-part${index + 1}.mp3`);
+        
+                const stats = await fsPromises.stat(`C:/Users/test657/Desktop/script/audio/downloaded/downloaded-part${index + 1}.mp3`);
+                if (stats.size === expectedSize) {
+                    console.log('Файлът е изтеглен успешно и размерът му съвпада.');
+                } else {
+                    throw new Error(`Размерът на файла не съвпада. Очакван: ${expectedSize}, Получен: ${stats.size}`);
+                }
+            } catch (error) {
+                console.error('Грешка при проверката или свалянето на файла:', error);
+            }
+        
+            console.log(`Част ${index + 1}:`, textPart);
+            await staticWait(5000); // Изчаква 5000 милисекунди (5 секунди)
+        }
     
-    await downloadFile(downloadLink, 'C:/Users/test657/Desktop/script/audio/downloaded/downloaded.mp3');
     
 
-    await staticWait(60000); // Изчаква 5000 милисекунди (5 секунди)
 
-    // Crawling all elements of the 'textParts' array and printing each element to the console.
-    // for (const [index, textPart] of textParts.entries()) {
-    //     const textToSpeachInputTextElement = `//*[@*='input_text']`;
-    //     await fillAndCheckInput(page, textToSpeachInputTextElement, textPart);
 
-    //     const usedCharactersText = `(//*[@*='position-relative']/div)[2]/span`;
-    //     const usedCharactersTextString = await getTextFromElement(page, usedCharactersText);
-    //     console.log(`-----------------------The used characters text is: ${usedCharactersTextString}`);
-    //     const usedCharactersNumber: number = Number(usedCharactersTextString);
 
-    //     if (usedCharactersNumber > maximumAllowedCharactersNumber) {
-    //         throw new Error(`The number of characters used in the text is greater than the allowed number of characters.`);
-    //     }
-    //     else {
-    //         console.log(`The used characters number is: ${usedCharactersNumber}`);
-    //     }
-    //     console.log(`Част ${index + 1}:`, textPart);
-    // }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -160,6 +178,9 @@ async function isElementReadyForInteraction(page: Page, selector: string): Promi
 async function fillAndCheckInput(page: Page, selector: string, textToEnter: string): Promise<boolean> {
     // Verify that the element is ready for interaction.
     await isElementReadyForInteraction(page, selector);
+
+    // Изчистете текстовото поле
+    await page.fill(selector, '');
 
     // Въведете текст в текстовото поле
     await page.fill(selector, textToEnter);
@@ -384,6 +405,21 @@ async function downloadFile(url: string, outputPath: string): Promise<void> {
             } catch (unlinkErr) {
                 reject(unlinkErr);
             }
+        });
+    });
+}
+
+async function getFileSize(url: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+        https.get(url, { method: 'HEAD' }, (response) => {
+            const contentLength = response.headers['content-length'];
+            if (contentLength) {
+                resolve(parseInt(contentLength, 10));
+            } else {
+                reject(new Error('Content-Length header is not available'));
+            }
+        }).on('error', (err) => {
+            reject(err);
         });
     });
 }
