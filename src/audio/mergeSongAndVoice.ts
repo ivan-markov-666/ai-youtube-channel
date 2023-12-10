@@ -1,17 +1,18 @@
 import ffmpeg from 'fluent-ffmpeg';
+import fs from 'fs';
+import path from 'path';
 
 import { unlink } from 'fs';
 
 import {
-    voiceWithSilencePath, 
+    voiceWithSilencePath,
     songDoubledFilePath,
-    outputedAudioFilePath
 } from '../../config';
 
+const rootDirectory = path.resolve(__dirname, '../..');
 
-
-export function mergeAudioFiles(songAudioVolume: string, voiceFilePath: string, songFilePath: string, temporaryAudioFilePath: string): Promise<void> {
-    return new Promise((resolve, reject) => {
+export function mergeAudioFiles(songAudioVolume: string, voiceFilePath: string, songFilePath: string, temporaryAudioFilePath: string, outputedAudioFilePath: string): Promise<void> {
+    return new Promise((resolve) => {
         const silenceDurationMs = 5000; // 5 секунди тишина
 
         // Първо добавете тишина към voice.mp3
@@ -40,7 +41,136 @@ export function mergeAudioFiles(songAudioVolume: string, voiceFilePath: string, 
     });
 }
 
+export async function mergeDownloadedFiles() {
+    try {
+        const directories = await getDirectoriesInDirectory(`${rootDirectory}/audio/downloaded`);
+        console.log(`Брой папки в директорията: ${directories.length}`);
 
+        for (const dir of directories) {
+            // Създаване на папка за конвертираните файлове ако не съществува
+            createDirectory(`${rootDirectory}/audio/converted/${dir}/`)
+                .then(() => console.log('Папката е създадена успешно.'))
+                .catch(err => console.error(err));
+
+            const directoryPath = `${rootDirectory}/audio/downloaded/${dir}/`;
+            const outputPath = `${rootDirectory}/audio/converted/${dir}/${dir}.mp3`;
+
+            // Проверка дали в папката има MP3 файлове
+            if (await hasMp3Files(directoryPath)) {
+                await concatenateAllAudioFilesInDirectory(directoryPath, outputPath);
+                console.log(`Аудио файловете в папка ${dir} са успешно обединени`);
+            } else {
+                console.log(`В папка ${dir} няма MP3 файлове.`);
+            }
+        }
+    } catch (err) {
+        console.error(err);
+    }
+
+    await deletePath(`${rootDirectory}/audio/downloaded`);
+}
+
+/**
+ * Създава папка по зададен път, ако тя вече не съществува.
+ * @param directoryPath Пътят, където да се създаде папката.
+ */
+export function createDirectory(directoryPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        fs.mkdir(directoryPath, { recursive: true }, (err) => {
+            if (err) {
+                console.error(`Грешка при създаване на папката: ${err.message}`);
+                reject(err);
+            } else {
+                console.log(`Папката ${directoryPath} е успешно създадена или вече съществува.`);
+                resolve();
+            }
+        });
+    });
+}
+
+async function hasMp3Files(directoryPath: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+        fs.readdir(directoryPath, (err, files) => {
+            if (err) {
+                console.error(`Грешка при четенето на директорията: ${err.message}`);
+                return reject(err);
+            }
+
+            // Проверка дали има MP3 файлове
+            const mp3Files = files.filter(file => path.extname(file) === '.mp3');
+            resolve(mp3Files.length > 0);
+        });
+    });
+}
+
+
+export async function getDirectoriesInDirectory(directoryPath: string): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+        fs.readdir(directoryPath, { withFileTypes: true }, (err, files) => {
+            if (err) {
+                console.error(`Грешка при четенето на директорията: ${err.message}`);
+                return reject(err);
+            }
+
+            const directories = files.filter(file => file.isDirectory()).map(dir => dir.name);
+            resolve(directories);
+        });
+    });
+}
+
+function concatenateAllAudioFilesInDirectory(directoryPath: string, outputFile: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        fs.readdir(directoryPath, (err, files) => {
+            if (err) {
+                console.error(`Грешка при четенето на директорията: ${err.message}`);
+                return reject(err);
+            }
+
+            // Филтриране и сортиране на MP3 файловете
+            const mp3Files = files.filter(file => path.extname(file) === '.mp3').sort();
+
+            if (mp3Files.length === 0) {
+                return reject(new Error('Няма намерени MP3 файлове в директорията.'));
+            }
+
+            // Създаване на ffmpeg команда
+            const ffmpegCommand = ffmpeg();
+
+            mp3Files.forEach(file => {
+                ffmpegCommand.input(path.join(directoryPath, file));
+            });
+
+            // Добавяне на complexFilter за конкатениране на аудио потоците
+            ffmpegCommand.complexFilter([
+                `${mp3Files.map((_, index) => `[${index}:a]`).join('')}concat=n=${mp3Files.length}:v=0:a=1[out]`,
+            ], 'out')
+                .audioCodec('libmp3lame')
+                .save(outputFile)
+                .on('end', () => {
+                    console.log(`Файловете са успешно конкатенирани: ${outputFile}`);
+                    resolve();
+                })
+                .on('error', (err) => {
+                    console.error(`Грешка при конкатенирането на файловете: ${err.message}`);
+                    reject(err);
+                });
+        });
+    });
+}
+
+async function countDirectoriesInDirectory(directoryPath: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+        fs.readdir(directoryPath, { withFileTypes: true }, (err, files) => {
+            if (err) {
+                console.error(`Грешка при четенето на директорията: ${err.message}`);
+                return reject(err);
+            }
+
+            const directories = files.filter(file => file.isDirectory());
+            resolve(directories.length);
+        });
+    });
+}
 
 function doubleSongIfShorterThanVoice(songFilePath: string, voiceDurationWithSilence: number, callback: () => void) {
     getDuration(songFilePath, (songDuration) => {
@@ -149,6 +279,60 @@ export function deleteFile(filePath: string): Promise<void> {
                 return;
             }
             resolve();
+        });
+    });
+}
+
+/**
+ * Изтрива файл или директория.
+ * @param path Пътят до файл или директория, която да бъде изтрита.
+ */
+export function deletePath(path: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        fs.stat(path, (err, stats) => {
+            if (err) {
+                return reject(err);
+            }
+
+            if (stats.isDirectory()) {
+                fs.rm(path, { recursive: true, force: true }, (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            } else {
+                fs.unlink(path, (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            }
+        });
+    });
+}
+
+/**
+ * Избира произволен аудио файл от дадена директория.
+ * @param {string} directoryPath Пътят към директорията.
+ * @returns {Promise<string>} Обещание, което връща пътя към избрания аудио файл.
+ */
+export function getRandomAudioFile(directoryPath: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        fs.readdir(directoryPath, (err, files) => {
+            if (err) {
+                return reject(err);
+            }
+
+            // Филтриране на аудио файловете (mp3)
+            const mp3Files = files.filter(file => path.extname(file) === '.mp3');
+
+            if (mp3Files.length === 0) {
+                return reject(new Error('Няма намерени аудио файлове в директорията.'));
+            }
+
+            // Избор на произволен файл
+            const randomFile = mp3Files[Math.floor(Math.random() * mp3Files.length)];
+
+            // Връщане на пътя към избрания файл
+            resolve(path.join(directoryPath, randomFile));
         });
     });
 }

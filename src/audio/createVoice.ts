@@ -1,25 +1,35 @@
 import assert from 'assert';
-import { chromium, Page } from 'playwright';
+import { chromium, BrowserContext, Page } from 'playwright';
 import * as fs from 'fs';
-import { promises as fsPromises } from 'fs';
+import { promises as fsPromises, mkdirSync } from 'fs';
 import path from 'path';
 import https from 'https';
-
-
-
+import { createDirectory } from './mergeSongAndVoice';
 
 const minWaitTime = 3000;
 const maxWaitTime = 5000;
+const rootDirectory = path.resolve(__dirname, '../..');
 
 export async function createVoice() {
-    const browser = await chromium.launch({ headless: false }); // Задайте headless на false
-    const context = await browser.newContext();
-    const page = await context.newPage();
+    const browser = await chromium.launch({ headless: false });
+    const context: BrowserContext = await browser.newContext();
+    const page: Page = await context.newPage();
+    // Задаване на размера на прозореца на Full HD
+    await page.setViewportSize({ width: 1920, height: 1080 });
+
+    page.setDefaultTimeout(3600000); // Playwright globa timeout
+
+    // Филтрирайте рекламните заявки
+    // await filterRequests(page);
+
+    // Create the directory where to put the downloaded files if it does not exist already.
+    createDirectory(`${rootDirectory}/audio/downloaded`)
+        .then(() => console.log('Папката е създадена успешно.'))
+        .catch(err => console.error(err));
 
     // Navigate to 'https://ttsconverter.io/'.
     const loginTtsPage = `https://ttsconverter.io/login`;
-    await page.goto(loginTtsPage);
-    assert.equal(page.url(), loginTtsPage, `The login page is not loaded.`);
+    await goTo(page, loginTtsPage);
 
     // Login.
     const usernameInputTextElement = `//*[@*='txt_username']`;
@@ -52,68 +62,115 @@ export async function createVoice() {
     const filePath = path.join(__dirname, '../../audio/TextForSpeach/text-for-speach.txt');
     const textFromFile = await readFileContents(filePath);
     const scenarios = parseScenarios(textFromFile);
-    const translatedText = scenarios[0].translatedText;
-    // Remove the prefix from the text.
-    const prefixToRemove = "Описание на първия сценарий: ";
-    const englishText = removePrefixFromText(translatedText, prefixToRemove);
-    const maximumAllowedCharactersNumber: number = Number(maximumAllowedCharactersNumberString);
-    const textParts = splitTextIntoChunks(englishText, maximumAllowedCharactersNumber - 10);
+    console.log("Общтият брой на сценариите е:", scenarios.length);
 
 
+    for (const [scenarioIndex, scenario] of scenarios.entries()) {
+        const translatedText = scenario.translatedText;
+        debugMessage(`${scenarioIndex + 1} - ${translatedText}`);
+        const maximumAllowedCharactersNumber: number = Number(maximumAllowedCharactersNumberString);
+        const textParts = splitTextIntoChunks(translatedText, maximumAllowedCharactersNumber - 10);
+
+        for (const [textPartIndex, textPart] of textParts.entries()) {
+            let isCorrectDomain;
+            do {
+                debugMessage2(`${textPartIndex + 1} - ${textPart}`);
+                const textToSpeachInputTextElement = `//*[@*='input_text']`;
+                await fillAndCheckInput(page, textToSpeachInputTextElement, textPart);
+                await staticWait(2000); // Изчаква 2000 милисекунди (2 секунди)
 
 
-        // Crawling all elements of the 'textParts' array and printing each element to the console.
-        for (const [index, textPart] of textParts.entries()) {
-            const textToSpeachInputTextElement = `//*[@*='input_text']`;
-            await fillAndCheckInput(page, textToSpeachInputTextElement, textPart);
-            await staticWait(2000); // Изчаква 5000 милисекунди (5 секунди)
-        
-            /** Select Eric Voice */
-            const ericVoice = `//*[@id='radioPrimaryen-US-EricNeural']`;
-            const changePitchElement1 = `((//*[@*='irs-grid'])[1]/following-sibling::span)[1]`;
-            const changePitchElement2 = `((//*[@*='irs-grid'])[1]/following-sibling::span)[3]`;
-            const changePitchElement3 = `//*[@*='voice_pitch_bin']`;
-            const changeAudjustVoiceSpeedElement1 = `((//*[@*='irs-grid'])[3]/following-sibling::span)[1]`;
-            const changeAudjustVoiceSpeedElement2 = `((//*[@*='irs-grid'])[3]/following-sibling::span)[3]`;
-            const changeAudjustVoiceSpeedElement3 = `//*[@*='volume_range']`;
-            const changePitchAttribute = `style`;
-            const changePitchValue1 = `left: 0px; width: 45.1483%;`;
-            const changePitchValue2 = `left: 43.6655%;`;
-            const changePitchValue3 = `-5`;
-            const changeAudjustVoiceSpeedValue1 = `left: 0px; width: 41.2669%;`;
-            const changeAudjustVoiceSpeedValue2 = `left: 39.7842%;`;
-            const changeAudjustVoiceSpeedValue3 = `-18`;
-        
-            await checkBox(page, ericVoice);
-        
-            await changeElementAttribute(page, changePitchElement1, changePitchAttribute, changePitchValue1);
-            await changeElementAttribute(page, changePitchElement2, changePitchAttribute, changePitchValue2);
-            await changeElementAttribute(page, changePitchElement3, changePitchAttribute, changePitchValue3);
-            await changeElementAttribute(page, changeAudjustVoiceSpeedElement1, changePitchAttribute, changeAudjustVoiceSpeedValue1);
-            await changeElementAttribute(page, changeAudjustVoiceSpeedElement2, changePitchAttribute, changeAudjustVoiceSpeedValue2);
-            await changeElementAttribute(page, changeAudjustVoiceSpeedElement3, changePitchAttribute, changeAudjustVoiceSpeedValue3);
-        
-        
-        
-            // Press the 'Convert Now' button.
-            const convertNowButtonElement = `//*[@*='Convert now']`;
-            await click(page, convertNowButtonElement);
-        
+                /** Select Eric Voice */
+                const ericVoice = `//*[@id='radioPrimaryen-US-EricNeural']`;
+                const changePitchElement1 = `((//*[@*='irs-grid'])[1]/following-sibling::span)[1]`;
+                const changePitchElement2 = `((//*[@*='irs-grid'])[1]/following-sibling::span)[3]`;
+                const changePitchElement3 = `//*[@*='voice_pitch_bin']`;
+                const changeAudjustVoiceSpeedElement1 = `((//*[@*='irs-grid'])[3]/following-sibling::span)[1]`;
+                const changeAudjustVoiceSpeedElement2 = `((//*[@*='irs-grid'])[3]/following-sibling::span)[3]`;
+                const changeAudjustVoiceSpeedElement3 = `//*[@*='volume_range']`;
+                const changePitchAttribute = `style`;
+                const changePitchValue1 = `left: 0px; width: 45.1483%;`;
+                const changePitchValue2 = `left: 43.6655%;`;
+                const changePitchValue3 = `-5`;
+                const changeAudjustVoiceSpeedValue1 = `left: 0px; width: 41.2669%;`;
+                const changeAudjustVoiceSpeedValue2 = `left: 39.7842%;`;
+                const changeAudjustVoiceSpeedValue3 = `-18`;
+
+                await checkBox(page, ericVoice);
+
+                await changeElementAttribute(page, changePitchElement1, changePitchAttribute, changePitchValue1);
+                await changeElementAttribute(page, changePitchElement2, changePitchAttribute, changePitchValue2);
+                await changeElementAttribute(page, changePitchElement3, changePitchAttribute, changePitchValue3);
+                await changeElementAttribute(page, changeAudjustVoiceSpeedElement1, changePitchAttribute, changeAudjustVoiceSpeedValue1);
+                await changeElementAttribute(page, changeAudjustVoiceSpeedElement2, changePitchAttribute, changeAudjustVoiceSpeedValue2);
+                await changeElementAttribute(page, changeAudjustVoiceSpeedElement3, changePitchAttribute, changeAudjustVoiceSpeedValue3);
+
+                // Press the 'Convert Now' button.
+                const convertNowButtonElement = `//*[@*='Convert now']`;
+                await click(page, convertNowButtonElement);
+
+                await staticWait(5000); // Изчаква 5000 милисекунди (5 секунди)
+
+                isCorrectDomain = await ensureCorrectDomain(page, 'ttsconverter.io', 'https://ttsconverter.io/');
+
+                if (!isCorrectDomain) {
+
+                    await staticWait(30000); // Изчаква 10000 милисекунди (10 секунди)
+                    console.log("Redirected to wrong domain. Repeating the process.");
+                    // Тук може да добавите код за ресетиране на някои стойности или действия, ако е необходимо
+                }
+
+                console.log("1");
+                // Check if the 'Confirm' button is visible.
+                const confirmNotARobotButtonElement = `//a[contains(text(),'Confirm')]`;
+                console.log("2");
+                const isCaptchaRequired = await checkElementPresence(page, confirmNotARobotButtonElement, 10000);
+                console.log("3");
+                if (isCaptchaRequired) {
+                    console.log("4");
+                    for (let i = 0; i < 3600; i++) {
+                        console.log("5");
+                        // This is the logic for waiting for filling the captcha and clicking the 'Confirm' button.
+                        try {
+                            console.log("6");
+                            const confirmVerificationElement = `//*[contains(text(),'Great,')]`;
+                            const result = await isElementReadyForInteraction(page, confirmVerificationElement);
+                            if (result) {
+                                console.log("7");
+                                break;
+                            }
+                        } catch (error) {
+                            console.log("8");
+                            await staticWait(1000); // Изчаква 1000 милисекунди (1 секунда)
+                        }
+                    }
+                }
+            } while (!isCorrectDomain);
+
             // Download the audio file.
             const downloadButtonElement = `//*[@*='btn-group']/a`;
+
             const downloadLink = await getAttributeValue(page, downloadButtonElement, 'href');
             if (downloadLink === null) {
                 throw new Error('Download link not found');
             }
-        
+
             // Download the file and verify that the size of the downloaded file is the same as the expected size.
             try {
                 const expectedSize = await getFileSize(downloadLink);
                 console.log(`Expected file size: ${expectedSize} bytes`);
-        
-                await downloadFile(downloadLink, `C:/Users/test657/Desktop/script/audio/downloaded/downloaded-part${index + 1}.mp3`);
-        
-                const stats = await fsPromises.stat(`C:/Users/test657/Desktop/script/audio/downloaded/downloaded-part${index + 1}.mp3`);
+                const directoryPath = `${rootDirectory}/audio/downloaded/${scenarioIndex + 1}`;
+
+                // Create folder where to put the downloaded files if it does not exist already.
+                createDirectorySync(directoryPath);
+
+
+
+                const downloadedFilePath = `${directoryPath}/${textPartIndex + 1}.mp3`;
+
+                await downloadFile(downloadLink, downloadedFilePath);
+
+                const stats = await fsPromises.stat(downloadedFilePath);
                 if (stats.size === expectedSize) {
                     console.log('Файлът е изтеглен успешно и размерът му съвпада.');
                 } else {
@@ -122,34 +179,31 @@ export async function createVoice() {
             } catch (error) {
                 console.error('Грешка при проверката или свалянето на файла:', error);
             }
-        
-            console.log(`Част ${index + 1}:`, textPart);
-            await staticWait(5000); // Изчаква 5000 милисекунди (5 секунди)
+
+
+            await goTo(page, 'https://ttsconverter.io/voices-list');
+            await isElementReadyForInteraction(page, logoutButtonSelector);
+            await goTo(page, 'https://ttsconverter.io/text-to-speech');
         }
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // console.log("Общтият брой на сценариите е:", scenarios.length);
-
-    // Navigate to 'https://ttsconverter.io/convert'.
-
+    }
     await browser.close();
+}
+
+async function checkElementPresence(page: Page, selector: string, timeout: number): Promise<boolean> {
+    try {
+        // Опит за намиране на елемента с определен таймаут
+        await page.waitForSelector(selector, { state: 'visible', timeout: timeout });
+        return true; // Елементът е намерен и е видим
+    } catch (err) {
+        // Елементът не е намерен в рамките на зададения таймаут
+        return false;
+    }
+}
+
+
+async function goTo(page: Page, url: string): Promise<void> {
+    await page.goto(url);
+    assert.equal(page.url(), url, `The page is not loaded.`);
 }
 
 async function click(page: Page, selector: string): Promise<void> {
@@ -159,20 +213,22 @@ async function click(page: Page, selector: string): Promise<void> {
     await page.click(selector);
 }
 
-async function isElementReadyForInteraction(page: Page, selector: string): Promise<void> {
-    // Проверява дали елементът е наличен и видим
-    await page.waitForSelector(selector, { state: 'visible' });
-    const isVisible = await page.isVisible(selector);
-    if (!isVisible) {
-        throw new Error(`The element with selector ${selector} is NOT VISIBLE.`);
-    }
+async function isElementReadyForInteraction(page: Page, selector: string): Promise<boolean> {
+    try {
+        // Проверява дали елементът е наличен и видим
+        await page.waitForSelector(selector, { state: 'visible' });
+        const isVisible = await page.isVisible(selector);
+        if (!isVisible) {
+            return false;
+        }
 
-    // Check if the element is only one in the DOM tree.
-    const elements = await page.$$(selector);
-    if (elements.length !== 1) {
-        throw new Error(`The element with selector ${selector} is NOT UNIQUE in the DOM tree. ${elements.length} elements found.`);
+        // Проверява дали елементът е единствен в DOM дървото
+        const elements = await page.$$(selector);
+        return elements.length === 1;
+    } catch (err) {
+        // В случай на грешка (например, ако селекторът не е намерен), връща false
+        return false;
     }
-
 }
 
 async function fillAndCheckInput(page: Page, selector: string, textToEnter: string): Promise<boolean> {
@@ -300,39 +356,6 @@ function parseScenarios(text: string): Scenario[] {
 }
 
 /**
- * @description Counts the number of characters in a string.
- * @param str   The string to count the characters from.
- * @returns     The number of characters in the string.
- */
-function countCharacters(str: string): number {
-    return str.length;
-}
-
-/**
- * @description     Removes a prefix from a text.
- * @param text      Provided text.
- * @param prefix    Prefix to be removed.
- * @returns         Return text without the prefix.
- * @example         removePrefixFromText("Описание на първия сценарий: Join us in this insightful exploration...", "Описание на първия сценарий: ") // Should print "Join us in this insightful exploration..."
- */
-function removePrefixFromText(text: string, prefix: string): string {
-    const regex = new RegExp("^" + escapeRegExp(prefix));
-    return text.replace(regex, '');
-}
-
-// 
-/**
- * @description     Escapes special characters in a string for use in a regular expression.
- *                  This function is needed to avoid problems if the prefix contains special characters that are used in regular expressions.
- * @param string    Provided string.
- * @returns         Return string with escaped special characters.
- */
-function escapeRegExp(string: string): string {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-
-/**
  * @description         Splits a text into chunks of a given size.
  * @param text          Provided text.
  * @param maxChunkSize  Maximum size of the chunk.
@@ -422,4 +445,69 @@ async function getFileSize(url: string): Promise<number> {
             reject(err);
         });
     });
+}
+
+function createDirectorySync(directoryPath: string): void {
+    try {
+        mkdirSync(directoryPath, { recursive: true });
+        console.log(`Папката '${directoryPath}' беше успешно създадена.`);
+    } catch (err) {
+        console.error('Грешка при създаването на папката:', err);
+    }
+}
+
+function debugMessage(text: string): void {
+    console.log('\x1b[31m', text, '\x1b[0m');
+}
+
+function debugMessage2(text: string): void {
+    console.log('\x1b[32m', text, '\x1b[0m');
+}
+
+
+async function filterRequests(page: Page) {
+    await page.route('**/*', (route) => {
+        const url = route.request().url();
+        const blockedDomains = [
+            'adservice.google.com',
+            'doubleclick.net',
+            'googleadservices.com',
+            'fluct.jp', // Домейн на fluct Reseller
+            'advertising.com', // Домейн на AOL Reseller
+            'appnexus.com', // Домейн на AppNexus Reseller
+            'contextweb.com', // Домейн на ContextWeb Reseller
+            'orcinternational.com', // Домейн на ORC International Reseller
+            'improvedigital.com', // Домейн на Improve Digital Reseller
+            'indexexchange.com', // Домейн на IndexExchange Reseller
+            'media.net', // Домейн на Media.net Reseller
+            'onetag.com', // Домейн на OneTag Reseller
+            'openx.com', // Домейн на OpenX Reseller
+            'pubmatic.com', // Домейн на PubMatic Reseller
+            'rhythmone.com', // Домейн на RhythmOne Reseller
+            'rubiconproject.com', // Домейн на RubiconProject Reseller
+            'smartadserver.com', // Домейн на SmartAdServer Reseller
+            'smartclip.com', // Домейн на Smartclip Reseller
+            'sovrn.com', // Домейн на Sovrn Reseller
+            'spotxchange.com', // Домейн на SpotXChange Reseller
+            'triplelift.com', // Домейн на Triple Lift Reseller
+            'yahoo.com', // Домейн на Yahoo Reseller
+            'stickyads.tv', // Домейн на StickyAds TV
+            'google.com', // Домейн на Google Interactive Media Ads
+        ];
+
+        if (blockedDomains.some(domain => url.includes(domain))) {
+            route.abort(); // Прекратяване на заявката
+        } else {
+            route.continue(); // Продължаване на заявката
+        }
+    });
+}
+
+async function ensureCorrectDomain(page: Page, expectedDomain: string, defaultUrl: string): Promise<boolean> {
+    const currentUrl = page.url();
+    if (!currentUrl.includes(expectedDomain)) {
+        await page.goto(defaultUrl);
+        return false; // Връща false, ако е наложило пренасочване
+    }
+    return true; // Връща true, ако домейнът е правилен
 }
