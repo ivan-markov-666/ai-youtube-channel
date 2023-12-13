@@ -34,4 +34,10 @@ async function audio() {
     }
 }
 
+async function video() {
+
+}
+
 audio();
+
+video();

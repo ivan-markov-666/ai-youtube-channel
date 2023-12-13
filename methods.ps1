@@ -151,3 +151,45 @@ function Add-AudioToVideo {
     # Изпълнение на командата
     Invoke-Expression $ffmpegCommand
 }
+
+# Функция за извличане на броя на файловете в дадена директория
+function Get-DirectoryCount {
+    param (
+        [string]$directoryPath
+    )
+
+    try {
+        # Вземете всички обекти в директорията и филтрирайте само директориите
+        $directories = Get-ChildItem -Path $directoryPath -Directory
+        # Върнете броя на директориите
+        return $directories.Count
+    }
+    catch {
+        Write-Host "Грешка: $_"
+        return $null
+    }
+}
+
+# Функция за създаване на директория
+function New-Directory {
+    param (
+        [string]$directoryPath
+    )
+
+    try {
+        # Проверете дали директорията вече съществува
+        if (-not (Test-Path -Path $directoryPath)) {
+            # Създайте директорията, ако тя не съществува
+            New-Item -Path $directoryPath -ItemType Directory
+            Write-Host "Директорията е създадена успешно: $directoryPath"
+        }
+        else {
+            Write-Host "Директорията вече съществува: $directoryPath"
+        }
+    }
+    catch {
+        Write-Host "Грешка при създаването на директорията: $_"
+    }
+}
+
+

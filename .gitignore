@@ -1,4 +1,9 @@
 /videos
 /result
 /node_modules
-/audio
+/audio/converted
+/audio/downloaded
+/audio/songs
+/audio/TextForSpeach
+/audio/song.mp3
+/audio/voice.mp3
