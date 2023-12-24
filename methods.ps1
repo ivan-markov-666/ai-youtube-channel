@@ -192,4 +192,44 @@ function New-Directory {
     }
 }
 
+# Функция за изтриване на файл
+function Remove-File {
+    param (
+        [string]$filePath
+    )
+
+    try {
+        if (Test-Path -Path $filePath) {
+            Remove-Item -Path $filePath -Force
+            Write-Host "Файлът е успешно изтрит: $filePath"
+        }
+        else {
+            Write-Host "Файлът не съществува: $filePath"
+        }
+    }
+    catch {
+        Write-Host "Грешка при изтриването на файла: $_"
+    }
+}
+
+function Clear-Directory {
+    param (
+        [string]$directoryPath
+    )
+
+    try {
+        # Проверка дали директорията съществува
+        if (Test-Path -Path $directoryPath) {
+            # Изтриване на всички файлове и поддиректории в директорията
+            Get-ChildItem -Path $directoryPath -Recurse | Remove-Item -Force -Recurse
+            Write-Host "Директорията е изчистена: $directoryPath"
+        }
+        else {
+            Write-Host "Директорията не съществува: $directoryPath"
+        }
+    }
+    catch {
+        Write-Host "Грешка при изтриването: $_"
+    }
+}
 

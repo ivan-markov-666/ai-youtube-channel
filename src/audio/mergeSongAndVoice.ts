@@ -41,6 +41,39 @@ export function mergeAudioFiles(songAudioVolume: string, voiceFilePath: string, 
     });
 }
 
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
+
+async function getDuration2(filePath: string): Promise<number> {
+    try {
+        const result = await execAsync(`ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${filePath}"`);
+        const duration = parseFloat(result.stdout.trim());
+        return duration;
+    } catch (error) {
+        console.error(`Error getting duration: ${error}`);
+        throw error;
+    }
+}
+
+
+
+export async function repeatAudioToMatchDuration(voiceFilePath: string, songFilePath: string, songFileFinalPath: string): Promise<void> {
+    const voiceDuration = await getDuration2(voiceFilePath);
+    const songDuration = await getDuration2(songFilePath);
+
+    if (voiceDuration <= songDuration) {
+        fs.copyFileSync(songFilePath, songFileFinalPath);
+        return;
+    }
+
+    const repeatCount = Math.ceil(voiceDuration / songDuration);
+    let command = `ffmpeg -stream_loop ${repeatCount - 1} -i "${songFilePath}" -c copy -shortest "${songFileFinalPath}"`;
+
+    await execAsync(command);
+}
+
 export async function mergeDownloadedFiles() {
     try {
         const directories = await getDirectoriesInDirectory(`${rootDirectory}/audio/downloaded`);
@@ -66,8 +99,6 @@ export async function mergeDownloadedFiles() {
     } catch (err) {
         console.error(err);
     }
-
-    await deletePath(`${rootDirectory}/audio/downloaded`);
 }
 
 /**
