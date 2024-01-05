@@ -8,7 +8,8 @@
     "check": "ts-node checkVideoFormat.ts",
     "convert": "ts-node convertVideos.ts",
     "cut": "ts-node cutVideos.ts",
-    "video": "ts-node video.ts"
+    "video": "ts-node video.ts",
+    "generate-text": "ts-node generateTextContent.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,11 +17,13 @@
   "dependencies": {
     "@types/fluent-ffmpeg": "^2.1.24",
     "ffmpeg-static": "^5.2.0",
-    "fluent-ffmpeg": "^2.1.2"
+    "fluent-ffmpeg": "^2.1.2",
+    "node-fetch": "^2.7.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.1",
     "@types/node": "^20.10.2",
+    "@types/node-fetch": "^2.6.10",
     "ts-node": "^10.9.1"
   }
 }
