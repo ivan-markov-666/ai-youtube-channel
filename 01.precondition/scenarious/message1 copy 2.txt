@@ -1,2 +1,0 @@
-текст съобщение 1:
-Just answer with 'True' or 'False'.

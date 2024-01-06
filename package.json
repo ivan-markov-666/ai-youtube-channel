@@ -4,18 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "generate-text": "ts-node generateTextContent.ts",
     "start": "ts-node index.ts",
     "check": "ts-node checkVideoFormat.ts",
     "convert": "ts-node convertVideos.ts",
     "cut": "ts-node cutVideos.ts",
-    "video": "ts-node video.ts",
-    "generate-text": "ts-node generateTextContent.ts"
+    "video": "ts-node video.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/fluent-ffmpeg": "^2.1.24",
+    "dotenv": "^16.3.1",
     "ffmpeg-static": "^5.2.0",
     "fluent-ffmpeg": "^2.1.2",
     "node-fetch": "^2.7.0"

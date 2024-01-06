@@ -1,19 +1,19 @@
-текст съобщение 2:
+topic:
 Theme: "The Power of Hope in Challenging Times"
 Quote: "But those who hope in the Lord will renew their strength." - Isaiah 40:31.
 
-текст съобщение 2:
+topic:
 Theme: "Wisdom: A Biblical Perspective"
 Quote: "The fear of the Lord is the beginning of wisdom." - Proverbs 9:10.
 
-текст съобщение 2:
+topic:
 Theme: "Overcoming Fear Through Faith"
 Quote: "Do not be afraid; just believe." - Mark 5:36.
 
-текст съобщение 2:
+topic:
 Theme: "The Virtue of Humility in Leadership"
 Quote: "He must become greater; I must become less." - John 3:30.
 
-текст съобщение 2:
+topic:
 Theme: "Strength in Forgiveness"
 Quote: "Then Peter came to Jesus and asked, 'Lord, how many times shall I forgive my brother or sister who sins against me? Up to seven times?' Jesus answered, 'I tell you, not seven times, but seventy-seven times.'" - Matthew 18:21-22.
