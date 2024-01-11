@@ -37,6 +37,8 @@ If you don't provide a 'Key Points' section, the script will generate content ba
 2. Provide you API baseURL. You can do that by setting the `BASE_URL` environment variable in the .env file. If the file doesn't exist, create it in the root folder of the project. Add 'BASE_URL=your_api_base_url' in the file. You can use any solution for AI API. I am using LM Studio, because it is the easiest way to use LLAMA2.
 3. Run `npm run generate-content` to generate content. The script will generate content for all topics in the `.\01.generateTextContent\topics.txt` file.
 II. Automatically make already generated text to speech and then create video.
+You can do it by running one single command `npm run create-video`.
+
 
 
 Dev Comments:

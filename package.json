@@ -7,10 +7,10 @@
     "generate-text": "ts-node generateTextContent.ts",
     "generate-tts": "ts-node generateTTS.ts",
     "generate-tts-debug": "node --inspect-brk -r ts-node/register generateTTS.ts",
-    "check": "ts-node checkVideoFormat.ts",
-    "convert": "ts-node convertVideos.ts",
-    "cut": "ts-node cutVideos.ts",
-    "video": "ts-node video.ts"
+    "check-video-format": "ts-node checkVideoFormat.ts",
+    "convert-videos-correct-format": "ts-node convertVideos.ts",
+    "cut-videos": "ts-node cutVideos.ts",
+    "generate-videos": "ts-node video.ts"
   },
   "keywords": [],
   "author": "",

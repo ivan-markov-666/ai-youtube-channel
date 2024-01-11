@@ -1,29 +1,16 @@
-import ffmpeg from 'fluent-ffmpeg';
-import ffmpegStatic from 'ffmpeg-static';
+/** This file wii be used to check the video format. You can use for analyze video files, before convert them to a standardized format. */
 
-// Настройка на пътя на ffmpeg
-let ffMpegPath = 'C:/Program Files/ffmpeg-2023-11-28-git-47e214245b-full_build/bin/ffmpeg.exe';
-ffmpeg.setFfmpegPath(ffmpegStatic || ffMpegPath);
+// Import the necessary modules
+import { analyzeVideoFile } from './src/video-generate/dsl';
 
-// Функция за анализ на видео файла
-function analyzeVideoFile(videoFilePath: string): Promise<ffmpeg.FfprobeData> {
-    return new Promise((resolve, reject) => {
-        ffmpeg.ffprobe(videoFilePath, (err, metadata) => {
-            if (err) {
-                reject(`Грешка при анализа на видео файла: ${err.message}`);
-            } else {
-                resolve(metadata);
-            }
-        });
-    });
-}
+// Assign the path to the video file to be analyzed to a variable
+const videoFilePath = './videos/landscape/converted/converted_coverr-a-religious-woman-buys-candles-3290-1080p.mp4';
 
-// Пример за използване на функцията
-const videoFilePath = 'C:/Users/ivanm/Desktop/script/videos/converted/converted_mixkit-above-the-huge-clouds-that-cover-the-sun-31791-medium.mp4';
-
+// Analyze the video file and log the metadata to the console if the analysis is successful or log an error message if the analysis fails
 analyzeVideoFile(videoFilePath)
     .then(metadata => {
         console.log('Metadata:', metadata);
-        // Тук може да обработите metadata според вашите нужди
+        // You can calculate the 'metadata' by your needs. For example, you can calculate the duration of the video file. Or you can calculate the width and height of the video file. Etc.
     })
+    // Log an error message if the analysis fails
     .catch(error => console.error(error));

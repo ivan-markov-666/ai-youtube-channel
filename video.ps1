@@ -1,66 +1,79 @@
+# This file contains the main script for creating videos with sound.
+
+# Generate all needed audio files
 npm run generate-tts
 
-Write-Host "----------------------------ei go na"
+# Include the methods.ps1 file
+. .\src\video-generate\dsl.ps1
 
-# Включване на файла methods.ps1
-. .\methods.ps1
-
-# Задайте пътя до директорията с видео файлове (mp4) за обработка.
+# Assing the path to the directory with video files (mp4) for processing.
+# In this directory, there must be subdirectories with video (mp4) files.
 $directory = ".\videos\landscape\converted\cut\"
 
-# Задайте пътя до директорията, чийто брой поддиректории искате да намерите
+# Assing the path to the directory with audio files (mp3) for processing.
+# In this directory, there must be subdirectories with audio (mp3) files.
 $audioFilesFolderPath = ".\02.generateTTS\final-audio"
 
-# Задайте пътя до директорията, където ще записваме новите видео файлове
+# Assing the path to the directory where we will save the new video files (this will be the folder with the final result).
 $resultFolder = ".\result"
 
-# Извикване на функцията и запазване на резултата в променлива
+# Get the number of files in the 'audioFilesFolderPath' directory
 $audioDirectoryCount = Get-DirectoryCount -directoryPath $audioFilesFolderPath
 
-# Показване на резултата
-Write-Host "Брой директории в директорията: $audioDirectoryCount"
+# Show the how many files are in the 'audioFilesFolderPath' directory
+Write-Host "Number of directories in the directory: $audioDirectoryCount"
 
-# Проверка дали $numberOfFiles е по-малко от 1
+# Check if $numberOfFiles is less than 1
 if ($audioDirectoryCount -lt 1) {
-    Write-Host "Грешка: Стойността на numberOfFiles трябва да бъде 1 или повече."
+    # Throw an error
+    Throw "Error: The value of numberOfFiles must be 1 or more."
 }
+# Otherwise, if $numberOfFiles is equal or greater than 1
 else {
-    # Пример за използване на функцията
+    # Clear the $resultFolder directory
     Clear-Directory -directoryPath $resultFolder
-    # Цикъл от 1 до $audioDirectoryCount
+    # Loop from 1 to $audioDirectoryCount
     for ($i = 1; $i -le $audioDirectoryCount; $i++) {
-        Write-Host "Обработка на итерация номер $i"
+        # Show the current iteration number
+        Write-Host "Processing iteration number $i"
 
-        # Актуализиране на пътя към аудио файла за текущата итерация
+        # Update the path to the audio file for the current iteration
         $currentAudioPath = ".\02.generateTTS\final-audio\$i\audio$i.mp3"
 
-        # Проверка дали аудио файлът съществува
+        # Check if the audio file exists in the current iteration directory ($currentAudioPath)
         if (-not (Test-Path -Path $currentAudioPath)) {
-            Write-Host "Аудио файлът не съществува: $currentAudioPath"
+            # If the audio file does not exist, show an error message and continue to the next iteration
+            Write-Host "The audio file does not exist: $currentAudioPath"
+            # Continue to the next iteration
             continue
         }
 
-        # Създаване на поддиректория в .\result за текущото видео
+        # Assing the path to the directory where we will save the new video files for the current iteration.
         $currentResultFolderPath = ".\result"
+        # Create the directory for the current iteration
         New-Directory -directoryPath $currentResultFolderPath
 
-        # Вземане на видео файловете от директорията и обработка на тези файлове
+        # Get the video files from the directory and process these files
         $mp4FilesArray = Get-Mp4Files -directoryPath $directory
+
+        # Get the selected video files and the total duration of the selected video files
         $selectedVideos, $totalSelectedDuration = Get-VideoSequenceForAudio -videos $mp4FilesArray -audioPath $currentAudioPath
 
-        # Пътят на крайния видео файл за текущата итерация, който ще е без звук.
+        # Assing the path to the output video file for the current iteration, which will be without sound.
         $outputVideoPath = "$currentResultFolderPath\video$i.mp4"
-        # Пътят на крайния видео файл за текущата итерация, който ще е със звук.
+        # Assing the path to the output video file for the current iteration, which will be with sound.
         $outputVideoWithAudioPath = "$currentResultFolderPath\$i.mp4"
 
-        # Съединяване на видео файловете
+        # Merging video files into one video file without sound (the output video file will be saved in the $outputVideoPath directory)
         Merge-Videos $selectedVideos $outputVideoPath
 
-        # Добавяне на аудио към видео
+        # Adding audio to video (the output video file will be saved in the $outputVideoWithAudioPath directory) 
         Add-AudioToVideo -videoPath $outputVideoPath -audioPath $currentAudioPath -outputVideoPath $outputVideoWithAudioPath
 
-        Write-Host "Видео със звук за итерация $i е създадено: $outputVideoWithAudioPath"
+        # Show the path to the output video file for the current iteration, which will be without sound.
+        Write-Host "Video with sound for iteration $i is created: $outputVideoWithAudioPath"
 
+        # Remove the video file without sound
         Remove-File -filePath $outputVideoPath
     }
 }

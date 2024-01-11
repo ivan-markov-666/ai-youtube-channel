@@ -1,52 +1,23 @@
-import ffmpeg from 'fluent-ffmpeg';
-import ffmpegStatic from 'ffmpeg-static';
-import fs from 'fs';
+/** This file will be used to convert the video files to a standardized format. It works only for mp4 file. */
+
+// Import the necessary modules
 import path from 'path';
+import { ensureDirectoryExists, convertVideos, containsVideoFiles } from './src/video-generate/dsl';
 
-
-let videoFolderPath = './videos/landscape/';
-let ffMpegPath = 'C:/Program Files/FFmpeg/ffmpeg-2023-07-02-git-50f34172e0-full_build/bin/ffmpeg.exe';
-
-function ensureDirectoryExists(directoryPath: string) {
-    if (!fs.existsSync(directoryPath)) {
-        fs.mkdirSync(directoryPath, { recursive: true });
-        console.log(`Директорията ${directoryPath} беше създадена.`);
-    } else {
-        console.log(`Директорията ${directoryPath} вече съществува.`);
-    }
+// Assign the path to the directory containing the video files to be converted to a variable
+const videoFolderPath = './videos/landscape/';
+// Assign the name of the directory where the converted video files should be saved to a variable
+const convertedDirectoryName = 'converted';
+// Check that the videoFolderPath contains video files
+const hasVideos = containsVideoFiles(videoFolderPath);
+if (!hasVideos) {
+    // If the directory does not contain video files, stop the program and throw an error message to the console
+    throw new Error(`No video files found in the directory. Please provide folder containing video files. Please provide video file with .mp4, .avi, .mov, .wmv, .mkv format or add new extension in the 'src/video-generate/dsl.ts' method.`);
 }
 
-// Използване на функцията
-const convertedDirectory = path.join(videoFolderPath, 'converted');
+// Assign the path to the directory where the converted video files should be saved to a variable
+const convertedDirectory = path.join(videoFolderPath, convertedDirectoryName);
+// Ensure that the directory exists
 ensureDirectoryExists(convertedDirectory);
-
-// Задаване на пътя на ffmpeg
-ffmpeg.setFfmpegPath(ffmpegStatic || ffMpegPath);
-
-function convertVideos(directoryPath: string) {
-    const videoFiles = fs.readdirSync(directoryPath)
-        .filter(file => file.endsWith('.mp4'));
-
-    videoFiles.forEach(file => {
-        const filePath = path.join(directoryPath, file);
-        const outputFilePath = path.join(directoryPath, 'converted', `converted_${file}`);
-
-        ffmpeg(filePath)
-        .outputOptions([
-            '-vf scale=1920:1080',  // Уеднаквяване на резолюцията
-            '-r 30',                // Уеднаквяване на кадровата честота
-            '-b:v 4000k',           // Задаване на уеднаквен битрейт
-            '-preset veryfast',     // Бързина на кодиране
-            '-crf 18',              // Баланс между качество и размер на файла
-            '-pix_fmt yuv420p',     // Уеднаквяване на цветовото пространство
-            '-colorspace bt709'     // Задаване на цветово пространство
-        ])
-        .save(outputFilePath)
-            .on('end', () => console.log(`Конвертирането на ${file} завършено.`))
-            .on('error', err => console.error(`Грешка при конвертирането на ${file}: ${err.message}`));
-    });
-}
-
-// Примерна употреба
-const videoDirectory = videoFolderPath;
-convertVideos(videoDirectory);
+// Convert the video files in the directory to a standardized format and save them in the converted directory
+convertVideos(videoFolderPath, convertedDirectoryName);

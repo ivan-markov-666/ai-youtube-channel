@@ -10,7 +10,7 @@
                 "ts-node/register"
             ],
             "args": [
-                "${workspaceFolder}/generateTTS.ts"
+                "${workspaceFolder}/convertVideos.ts"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"

@@ -20,3 +20,5 @@ export const voiceWithSilencePath = './02.generateTTS/voice_with_silence.mp3';
 export const fadedOutputFilePath = './02.generateTTS/audio_faded.mp3';
 // This is used in the situation where the song file is shorter in duration than the voice file. The goal is to double or triple the song file until the duration of the song reaches or exceeds the duration of the audio file.
 export const songDoubledFilePath = './02.generateTTS/song_doubled.mp3'; 
+// The path to the FFMPEG executable file.
+export const ffMpegPath = 'C:/Program Files/ffmpeg-2023-11-28-git-47e214245b-full_build/bin/ffmpeg.exe';
