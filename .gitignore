@@ -1,8 +1,4 @@
 /result
 /node_modules
-/audio/converted
-/audio/downloaded
-/audio/TextForSpeach
-/audio/song.mp3
-/audio/voice.mp3
+/02.generateTTS
 /videos
