@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "generate-text": "ts-node generateTextContent.ts",
-    "start": "ts-node index.ts",
+    "generate-tts": "ts-node generateTTS.ts",
+    "generate-tts-debug": "node --inspect-brk -r ts-node/register generateTTS.ts",
     "check": "ts-node checkVideoFormat.ts",
     "convert": "ts-node convertVideos.ts",
     "cut": "ts-node cutVideos.ts",

@@ -20,8 +20,14 @@ Because the project is using different technologies, you need to install differe
 4. Install Playwright. You can do that by running `npx playwright install` in the project folder.
 
 ## How to use the project
+### Before you start using the project, lets understand what is the process of creating a video
+1. Generate text content using AI.
+2. Convert the text to speech using AI.
+3. Add randomly selected background music.
+4. Add randomly selected videos to the audio.
+### Use the project
 I. Automatically generate text content (that will be used for the video).  
-1. First we need to generate text content. To do that, we need to provide a topic for what content we want to generate. You can add your own topics in the `.\01.precondition\scenarious\topics.txt` file.  
+1. First we need to generate text content. To do that, we need to provide a topic for what content we want to generate. You can add your own topics in the `.\01.generateTextContent\topics.txt` file.  
 The file need to follow the next format:  
 - topic:  
 - Theme:  
@@ -29,7 +35,7 @@ The file need to follow the next format:
 - Key Points:  
 If you don't provide a 'Key Points' section, the script will generate content based on your 'Theme' and 'Quote' sections.
 2. Provide you API baseURL. You can do that by setting the `BASE_URL` environment variable in the .env file. If the file doesn't exist, create it in the root folder of the project. Add 'BASE_URL=your_api_base_url' in the file. You can use any solution for AI API. I am using LM Studio, because it is the easiest way to use LLAMA2.
-3. Run `npm run generate-content` to generate content. The script will generate content for all topics in the `.\01.precondition\scenarious\topics.txt` file.
+3. Run `npm run generate-content` to generate content. The script will generate content for all topics in the `.\01.generateTextContent\topics.txt` file.
 II. Automatically make already generated text to speech and then create video.
 
 

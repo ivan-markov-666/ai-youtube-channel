@@ -1,4 +1,4 @@
-npm run start
+npm run generate-tts
 
 Write-Host "----------------------------ei go na"
 
@@ -9,7 +9,7 @@ Write-Host "----------------------------ei go na"
 $directory = ".\videos\landscape\converted\cut\"
 
 # Задайте пътя до директорията, чийто брой поддиректории искате да намерите
-$audioFilesFolderPath = ".\audio\final-audio"
+$audioFilesFolderPath = ".\02.generateTTS\final-audio"
 
 # Задайте пътя до директорията, където ще записваме новите видео файлове
 $resultFolder = ".\result"
@@ -32,7 +32,7 @@ else {
         Write-Host "Обработка на итерация номер $i"
 
         # Актуализиране на пътя към аудио файла за текущата итерация
-        $currentAudioPath = ".\audio\final-audio\$i\audio$i.mp3"
+        $currentAudioPath = ".\02.generateTTS\final-audio\$i\audio$i.mp3"
 
         # Проверка дали аудио файлът съществува
         if (-not (Test-Path -Path $currentAudioPath)) {

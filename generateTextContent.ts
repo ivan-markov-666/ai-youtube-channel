@@ -8,14 +8,14 @@ dotenv.config();
 
 /** Declarations **/
 // The base URL of the AI server
-if (!process.env.BASE_URL) {
-    throw new Error("BASE_URL is not defined in your .env file");
+if (!process.env.AI_BASE_URL) {
+    throw new Error("AI_BASE_URL is not defined in your .env file");
 }
-const baseUrl = process.env.BASE_URL;
+const baseUrl = process.env.AI_BASE_URL;
 // The path to the file containing the message to be sent to the AI server
-const fileContainingMessagesForAi = './01.precondition/topics/topics.txt';
+const fileContainingMessagesForAi = './01.generateTextContent/topics.txt';
 // The path to the file where the response from the AI server will be saved
-const outputFilePath = './audio/TextForSpeach/text-for-speach.txt';
+const outputFilePath = './02.generateTTS/TextForSpeach/text-for-speach.txt';
 // System message to be sent to the AI
 const keyPointsSystemMessage = `Imagine you're a pastor speaking in front of a group of devout Christians in a church. Please give extended texts related to every bullet point, but please do not add a counter to the text. Just create free text without any countering. I am providing you a bullet point related to the current theme:`
 const themeSystemMessage1 = `Imagine you're a pastor speaking in front of a group of devout Christians in a church. Please give extended texts related to the theme and to the quote from the Bible. Please try to not add a counter to the text. Just create free text without any countering. The theme is:`;
@@ -24,8 +24,8 @@ const descriptionSystemMessage = `A text should be made to be placed on YouTube 
 // If true, a description will be generated for the text. If false, no description will be generated.
 const generateDescriptionToggle = false;
 
-// Define the main function that will be executed when the script is run from the command line.
-async function main() {
+// Define the text function that will be executed when the script is run from the command line.
+async function text() {
 
     // Check if the output file exists and delete it if it does exist, then create it again (to clear it). We need to have an empty file before we start writing to it.
     recreateFile(outputFilePath);
@@ -34,7 +34,7 @@ async function main() {
     // The messages are separated by the word "topic:".
     // This is the word that we use to separate the messages in the file.
     // The word "topic:" is not included in the messages.
-    // For more details see the file "topics.txt" in the folder "01.precondition/topics".
+    // For more details see the file "topics.txt" in the folder "01.generateTextContent".
     const messagesForAi = readMessagesFromFilePath(fileContainingMessagesForAi, 'topic:');
     // Array for storing all key points from all messages.
     let allKeyPointsText = [];
@@ -79,7 +79,7 @@ async function main() {
         }
 
         // Record the response to the file (append it to the file).
-        appendFileSync(outputFilePath, `Title: ${theme}\n\nTranslated Text:\n${quote}\n`);
+        appendFileSync(outputFilePath, `Title: ${theme}\n\nTTS:\n${quote}\n`);
 
         // Define a variable for storing the generated text.
         let aiGeneratedTextWithNoNewLines = "";
@@ -167,5 +167,5 @@ async function main() {
     }
 }
 
-// Run the main function to start the script.
-main();
+// Run the text function to start the script.
+text();
