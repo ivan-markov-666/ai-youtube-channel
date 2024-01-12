@@ -1,8 +1,5 @@
 # This file contains the main script for creating videos with sound.
 
-# Generate all needed audio files
-npm run generate-tts
-
 # Include the methods.ps1 file
 . .\src\video-generate\dsl.ps1
 
