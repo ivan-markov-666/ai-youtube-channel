@@ -7,23 +7,35 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 /** Declarations **/
-// The base URL of the AI server
+// Verify that the necessary environment variables are defined in the .env file.
 if (!process.env.AI_BASE_URL) {
     throw new Error("AI_BASE_URL is not defined in your .env file");
 }
+if (!process.env.GENERATE_KEY_POINTS_SYSTEM_MESSAGE) {
+    throw new Error("GENERATE_KEY_POINTS_SYSTEM_MESSAGE is not defined in your .env file");
+}
+if (!process.env.GENERATE_THEME_SYSTEM_MESSAGE_1) {
+    throw new Error("GENERATE_THEME_SYSTEM_MESSAGE_1 is not defined in your .env file");
+}
+if (!process.env.GENERATE_THEME_SYSTEM_MESSAGE_2) {
+    throw new Error("GENERATE_THEME_SYSTEM_MESSAGE_2 is not defined in your .env file");
+}
+if (!process.env.GENERATE_DESCRIPTION_SYSTEM_MESSAGE) {
+    throw new Error("GENERATE_DESCRIPTION_SYSTEM_MESSAGE is not defined in your .env file");
+}
+// The base URL of the AI server
 const baseUrl = process.env.AI_BASE_URL;
 // The path to the file containing the message to be sent to the AI server
 const fileContainingMessagesForAi = './01.generateTextContent/topics.txt';
 // The path to the file where the response from the AI server will be saved
 const outputFilePath = './02.generateTTS/TextForSpeach/text-for-speach.txt';
 // System message to be sent to the AI
-const keyPointsSystemMessage = `Imagine you're a pastor speaking in front of a group of devout Christians in a church. Please give extended texts related to every bullet point, but please do not add a counter to the text. Just create free text without any countering. I am providing you a bullet point related to the current theme:`
-const themeSystemMessage1 = `Imagine you're a pastor speaking in front of a group of devout Christians in a church. Please give extended texts related to the theme and to the quote from the Bible. Please try to not add a counter to the text. Just create free text without any countering. The theme is:`;
-const themeSystemMessage2 = `Please generate text for that quote from the Bible.`
-const descriptionSystemMessage = `A text should be made to be placed on YouTube as a description of the text that I am now providing you with.`;
+const keyPointsSystemMessage = process.env.GENERATE_KEY_POINTS_SYSTEM_MESSAGE;
+const themeSystemMessage1 = process.env.GENERATE_THEME_SYSTEM_MESSAGE_1
+const themeSystemMessage2 = process.env.GENERATE_THEME_SYSTEM_MESSAGE_2
+const descriptionSystemMessage = process.env.GENERATE_DESCRIPTION_SYSTEM_MESSAGE;
 // If true, a description will be generated for the text. If false, no description will be generated.
 const generateDescriptionToggle = false;
-
 // Define the text function that will be executed when the script is run from the command line.
 async function text() {
 

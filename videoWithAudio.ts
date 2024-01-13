@@ -1,26 +1,30 @@
 import { exec } from 'child_process';
 
-// Define the function with a type for the 'command' parameter
-function runCommand(command: string): Promise<void> {
+const execute = (command: string): Promise<void> => {
     return new Promise((resolve, reject) => {
-        exec(command, (err, stdout, stderr) => {
-            if (err) {
-                console.error(`exec error: ${err}`);
-                reject(err);
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`error: ${error.message}`);
+                reject(error);
                 return;
             }
+            if (stderr) {
+                console.error(`stderr: ${stderr}`);
+            }
             console.log(`stdout: ${stdout}`);
-            console.error(`stderr: ${stderr}`);
-            resolve(); // No value to resolve, so use resolve() for a void Promise
+            resolve();
         });
     });
-}
+};
 
-// Usage of the function remains the same
-runCommand('npm run generate-tts')
-    .then(() => {
-        return runCommand('powershell.exe -ExecutionPolicy Bypass -File ./video.ps1');
-    })
-    .catch(err => {
-        console.error('Error occurred:', err);
-    });
+const runScriptsSequentially = async () => {
+    try {
+        await execute('ts-node generateTTS.ts');
+        console.log('generateTTS.ts script has been executed.');
+        await execute('ts-node video.ts');
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+};
+
+runScriptsSequentially();

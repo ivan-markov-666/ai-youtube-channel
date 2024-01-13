@@ -57,7 +57,7 @@ async function audio() {
             // Catch the error.
             .catch(error => console.error('Error processing audio:', error));
         // Merge the song and the voice and create the final audio file.
-        await mergeAudioFiles(songAudioVolume, `./02.generateTTS/converted/${i}/${i}.mp3`, finalSongWithEnoughtDuration, temporaryAudioFilePath, `./02.generateTTS/final-audio/${i}/02.generateTTS${i}.mp3`);
+        await mergeAudioFiles(songAudioVolume, `./02.generateTTS/converted/${i}/${i}.mp3`, finalSongWithEnoughtDuration, temporaryAudioFilePath, `./02.generateTTS/final-audio/${i}/audio${i}.mp3`);
         // Log the result.
         console.log(`Merge of the song and the voice is complete.`); 
         // Log which files are going to be deleted.

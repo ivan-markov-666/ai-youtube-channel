@@ -4,16 +4,23 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug generate-tts",
+            "name": "Debug generateTextContent",
             "runtimeArgs": [
                 "-r",
                 "ts-node/register"
             ],
             "args": [
-                "${workspaceFolder}/convertVideos.ts"
+                "${workspaceFolder}/generateTextContent.ts"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "PowerShell: Debug video.ps1",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/video.ps1",
+            "cwd": "${workspaceFolder}"
         }
         // You can add more configurations here
     ]

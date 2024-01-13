@@ -5,7 +5,7 @@
  */
 
 // The volume of the song audio file should be set to value between 0 and 1. The lower the value, the quieter the song will be. The voice audio file will be played at full volume.
-export const songAudioVolume = `0.2`;
+export const songAudioVolume = `0.15`;
 // The path to the voice audio file.
 export const voiceFilePath = './02.generateTTS/voice.mp3';
 // The path to the song audio file.
