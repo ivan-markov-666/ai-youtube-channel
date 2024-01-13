@@ -2,9 +2,16 @@
 
 // Import the necessary modules
 import { analyzeVideoFile } from './src/video-generate/dsl';
+import * as dotenv from 'dotenv';
+// Declare the process.env variable.
+dotenv.config();
 
+// Check if the VIDEOS_RAW_FORMAT_FOLDER_PATH variable is defined in the .env file.
+if (!process.env.VIDEOS_CHECK_FILE) {
+    throw new Error("VIDEOS_CHECK_FILE is not defined in your .env file");
+}
 // Assign the path to the video file to be analyzed to a variable
-const videoFilePath = './videos/landscape/converted/converted_coverr-a-religious-woman-buys-candles-3290-1080p.mp4';
+const videoFilePath = process.env.VIDEOS_CHECK_FILE;
 
 // Analyze the video file and log the metadata to the console if the analysis is successful or log an error message if the analysis fails
 analyzeVideoFile(videoFilePath)

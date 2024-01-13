@@ -3,9 +3,16 @@
 // Import the necessary modules
 import path from 'path';
 import { ensureDirectoryExists, convertVideos, containsVideoFiles } from './src/video-generate/dsl';
+import * as dotenv from 'dotenv';
+// Declare the process.env variable.
+dotenv.config();
 
+// Check if the VIDEOS_RAW_FORMAT_FOLDER_PATH variable is defined in the .env file.
+if (!process.env.VIDEOS_RAW_FORMAT_FOLDER_PATH) {
+    throw new Error("VIDEOS_RAW_FORMAT_FOLDER_PATH is not defined in your .env file");
+}
 // Assign the path to the directory containing the video files to be converted to a variable
-const videoFolderPath = './videos/landscape/';
+const videoFolderPath = process.env.VIDEOS_RAW_FORMAT_FOLDER_PATH;
 // Assign the name of the directory where the converted video files should be saved to a variable
 const convertedDirectoryName = 'converted';
 // Check that the videoFolderPath contains video files

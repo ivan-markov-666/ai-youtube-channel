@@ -233,3 +233,17 @@ function Clear-Directory {
     }
 }
 
+# Функция за зареждане на променливите от .env файл
+function Import-DotEnv {
+    param (
+        [string]$path = ".\.env"
+    )
+
+    if (Test-Path $path) {
+        Get-Content $path | ForEach-Object {
+            if ($_ -match "^\s*([^#].*?)\s*=\s*(.*)$") {
+                Set-Variable -Name $matches[1] -Value $matches[2] -Scope Global
+            }
+        }
+    }
+}

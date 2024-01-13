@@ -3,9 +3,12 @@
 # Include the methods.ps1 file
 . .\src\video-generate\dsl.ps1
 
-# Assing the path to the directory with video files (mp4) for processing.
+# Call the method for importing the values from the .env file
+Import-DotEnv
+
+# Assing the path to the directory with video files (mp4) for processing. Call the value from the .env file.
 # In this directory, there must be subdirectories with video (mp4) files.
-$directory = ".\videos\landscape\converted\cut\"
+$directory = $env:VIDEOS_FOLDER_PATH
 
 # Assing the path to the directory with audio files (mp3) for processing.
 # In this directory, there must be subdirectories with audio (mp3) files.
@@ -46,7 +49,7 @@ else {
         }
 
         # Assing the path to the directory where we will save the new video files for the current iteration.
-        $currentResultFolderPath = ".\result"
+        $currentResultFolderPath = $env:OUTPUT_FOLDER_PATH
         # Create the directory for the current iteration
         New-Directory -directoryPath $currentResultFolderPath
 

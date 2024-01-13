@@ -12,7 +12,6 @@
     "cut-videos": "ts-node cutVideos.ts",
     "generate-videos": "ts-node video.ts",
     "generate-videos-with-audio": "ts-node videoWithAudio.ts"
-
   },
   "keywords": [],
   "author": "",

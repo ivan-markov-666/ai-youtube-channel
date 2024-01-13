@@ -5,6 +5,16 @@ import { mergeAudioFiles, createDirectory, deleteFile, getDirectoriesInDirectory
 import fs from 'fs';
 import { songAudioVolume, temporaryAudioFilePath, voiceWithSilencePath } from './config';
 import { createVoice } from './src/tts-generate-audio/createVoice';
+import * as dotenv from 'dotenv';
+// Declare the process.env variable.
+dotenv.config();
+
+// Check if the BACKGROUND_MUSIC_FOLDER_PATH variable is defined in the .env file.
+if (!process.env.BACKGROUND_MUSIC_FOLDER_PATH) {
+    throw new Error("BACKGROUND_MUSIC_FOLDER_PATH is not defined in your .env file");
+}
+// Assign the path to the background music folder to a variable.
+const backgroundMusicsPath = process.env.BACKGROUND_MUSIC_FOLDER_PATH;
 
 /** Define the audio function. **/
 async function audio() {
@@ -45,7 +55,7 @@ async function audio() {
         // Create the directory for the final audio file.
         await createDirectory(`./02.generateTTS/final-audio/${i}`)
         // Select random song file from the songs directory. That file (song) will be used to merge with the voice.
-        let selectRandomSongFile = await getRandomAudioFile(`./02.generateTTS/songs/`);
+        let selectRandomSongFile = await getRandomAudioFile(backgroundMusicsPath);
         // Log the selected song file.
         console.log(`A random song file has been selected: ${selectRandomSongFile}`);
         // Assign the path to the final audio file that will be created to a variable.
