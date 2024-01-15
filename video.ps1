@@ -14,6 +14,8 @@ $directory = $env:VIDEOS_FOLDER_PATH
 # In this directory, there must be subdirectories with audio (mp3) files.
 $audioFilesFolderPath = ".\02.generateTTS\final-audio"
 
+Write-Host $env:RESULT_FOLDER_PATH
+
 # Assing the path to the directory where we will save the new video files (this will be the folder with the final result).
 $resultFolder = ".\result"
 
@@ -48,10 +50,8 @@ else {
             continue
         }
 
-        # Assing the path to the directory where we will save the new video files for the current iteration.
-        $currentResultFolderPath = $env:OUTPUT_FOLDER_PATH
         # Create the directory for the current iteration
-        New-Directory -directoryPath $currentResultFolderPath
+        New-Directory -directoryPath $resultFolder
 
         # Get the video files from the directory and process these files
         $mp4FilesArray = Get-Mp4Files -directoryPath $directory
@@ -60,9 +60,9 @@ else {
         $selectedVideos, $totalSelectedDuration = Get-VideoSequenceForAudio -videos $mp4FilesArray -audioPath $currentAudioPath
 
         # Assing the path to the output video file for the current iteration, which will be without sound.
-        $outputVideoPath = "$currentResultFolderPath\video$i.mp4"
+        $outputVideoPath = "$resultFolder\video$i.mp4"
         # Assing the path to the output video file for the current iteration, which will be with sound.
-        $outputVideoWithAudioPath = "$currentResultFolderPath\$i.mp4"
+        $outputVideoWithAudioPath = "$resultFolder\$i.mp4"
 
         # Merging video files into one video file without sound (the output video file will be saved in the $outputVideoPath directory)
         Merge-Videos $selectedVideos $outputVideoPath
