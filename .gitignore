@@ -2,3 +2,4 @@
 /node_modules
 /02.generateTTS
 /videos
+.env

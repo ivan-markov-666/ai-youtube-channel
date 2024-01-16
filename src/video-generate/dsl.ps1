@@ -233,17 +233,19 @@ function Clear-Directory {
     }
 }
 
-# Функция за зареждане на променливите от .env файл
-function Import-DotEnv {
+# Функция за четене на .env файл и извличане на стойностите
+function Get-EnvValue {
     param (
-        [string]$path = ".\.env"
+        [string]$key
     )
 
-    if (Test-Path $path) {
-        Get-Content $path | ForEach-Object {
-            if ($_ -match "^\s*([^#].*?)\s*=\s*(.*)$") {
-                Set-Variable -Name $matches[1] -Value $matches[2] -Scope Global
-            }
+    $lines = Get-Content ".\.env" -ErrorAction SilentlyContinue
+    foreach ($line in $lines) {
+        if ($line -match "$key=(.*)") {
+            # Тук използваме .Trim('') за да премахнем апострофите от началото и края на стойността
+            return $matches[1].Trim("'")
         }
     }
+
+    return $null
 }

@@ -3,21 +3,16 @@
 # Include the methods.ps1 file
 . .\src\video-generate\dsl.ps1
 
-# Call the method for importing the values from the .env file
-Import-DotEnv
-
 # Assing the path to the directory with video files (mp4) for processing. Call the value from the .env file.
 # In this directory, there must be subdirectories with video (mp4) files.
-$directory = $env:VIDEOS_FOLDER_PATH
+$directory = Get-EnvValue "VIDEOS_FOLDER_PATH"
 
 # Assing the path to the directory with audio files (mp3) for processing.
 # In this directory, there must be subdirectories with audio (mp3) files.
 $audioFilesFolderPath = ".\02.generateTTS\final-audio"
 
-Write-Host $env:RESULT_FOLDER_PATH
-
 # Assing the path to the directory where we will save the new video files (this will be the folder with the final result).
-$resultFolder = ".\result"
+$resultFolder = Get-EnvValue "RESULT_FOLDER_PATH"
 
 # Get the number of files in the 'audioFilesFolderPath' directory
 $audioDirectoryCount = Get-DirectoryCount -directoryPath $audioFilesFolderPath
