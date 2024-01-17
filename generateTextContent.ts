@@ -8,8 +8,8 @@ dotenv.config();
 
 /** Declarations **/
 // Verify that the necessary environment variables are defined in the .env file.
-if (!process.env.AI_BASE_URL) {
-    throw new Error("AI_BASE_URL is not defined in your .env file");
+if (!process.env.AI_TEXT_BASE_URL) {
+    throw new Error("AI_TEXT_BASE_URL is not defined in your .env file");
 }
 if (!process.env.GENERATE_KEY_POINTS_SYSTEM_MESSAGE) {
     throw new Error("GENERATE_KEY_POINTS_SYSTEM_MESSAGE is not defined in your .env file");
@@ -24,7 +24,7 @@ if (!process.env.GENERATE_DESCRIPTION_SYSTEM_MESSAGE) {
     throw new Error("GENERATE_DESCRIPTION_SYSTEM_MESSAGE is not defined in your .env file");
 }
 // The base URL of the AI server
-const baseUrl = process.env.AI_BASE_URL;
+const baseUrl = process.env.AI_TEXT_BASE_URL;
 // The path to the file containing the message to be sent to the AI server
 const fileContainingMessagesForAi = './01.generateTextContent/topics.txt';
 // The path to the file where the response from the AI server will be saved
