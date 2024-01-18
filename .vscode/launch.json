@@ -16,6 +16,20 @@
             "console": "integratedTerminal"
         },
         {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug generatePictures",
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "args": [
+                "${workspaceFolder}/generatePictures.ts"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "PowerShell: Debug video.ps1",
             "type": "PowerShell",
             "request": "launch",

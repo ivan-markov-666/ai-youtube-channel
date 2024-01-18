@@ -61,7 +61,7 @@ export async function checkElementPresence(page: Page, selector: string, timeout
 export async function isElementReadyForInteraction(page: Page, selector: string): Promise<boolean> {
     try {
         // Check if the element is present and visible
-        await page.waitForSelector(selector, { state: 'visible' });
+        await page.waitForSelector(selector, { state: 'visible', timeout: 15000 });
         // Check if the element is visible and assign the result to a variable for later use in the function.
         const isVisible = await page.isVisible(selector);
         // Check if the element is visible
@@ -440,4 +440,55 @@ export function debugMessage(text: string): void {
 export function debugMessage2(text: string): void {
     // Log the text in green color
     console.log('\x1b[32m', text, '\x1b[0m');
+}
+
+/**
+ * @description             Validates that an element is present on the page.
+ * @param page              Provide the page object.
+ * @param selector          Provide the selector of the element.
+ * @returns                 True if the element is present on the page, false otherwise.
+ */
+export async function validateElementPresent(page: Page, selector: string): Promise<boolean> {
+    for (let i = 0; i < 15; i++) {
+        const element = await isElementReadyForInteraction(page, selector);
+        if (!element) {
+            await staticWait(1000);
+        }
+        else {
+            const isElementStillPresent = await page.locator(selector).isVisible();
+            if (isElementStillPresent) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * @description             Validates that an element is NOT present on the page.
+ * @param page              Provide the page object.
+ * @param selector          Provide the selector of the element.
+ * @returns                 True if the element is NOT present on the page, false otherwise.
+ */
+export async function validateElementNotPresent(page: Page, selector: string): Promise<boolean> {
+    for (let i = 0; i < 15; i++) {
+        const element = await isElementReadyForInteraction(page, selector);
+        if (!element) {
+            await staticWait(1000);
+            return false;
+        }
+        else {
+            const isElementStillPresent = await page.locator(selector).isVisible();
+            if (isElementStillPresent) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+    return false;
 }

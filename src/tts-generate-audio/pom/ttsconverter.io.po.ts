@@ -1,6 +1,6 @@
 /** 
  * This is a POM file.
- * That file contains the Page Object Model for the ttsconverter.io.po.ts file.
+ * That file contains the Page Object Model for the ttsconverter.io
  **/
 
 /** Imports */
