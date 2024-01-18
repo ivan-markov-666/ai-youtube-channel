@@ -2,7 +2,7 @@
 
 // Import the necessary modules
 import path from 'path';
-import { ensureDirectoryExists, convertVideos, containsVideoFiles } from './src/video-generate/dsl';
+import { ensureDirectoryExists, convertVideos, containsVideoFiles } from './src/domain-specific-language/dsl-ts';
 import * as dotenv from 'dotenv';
 // Declare the process.env variable.
 dotenv.config();

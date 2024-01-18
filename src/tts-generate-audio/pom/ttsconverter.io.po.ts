@@ -5,7 +5,7 @@
 
 /** Imports */
 import path from 'path';
-import { goTo, sendKeys, checkBox, randomWait, click, isElementReadyForInteraction, getTextFromElement, readFileContents, parseScenarios, debugMessage, debugMessage2, staticWait, changeElementAttribute, ensureCorrectDomain, checkElementPresence, getAttributeValue, getFileSize, createDirectorySync, downloadFile } from '../domain-specific-language/dsl';
+import { goTo, sendKeys, checkBox, randomWait, click, isElementReadyForInteraction, getTextFromElement, readFileContents, parseScenarios, debugMessage, debugMessage2, staticWait, changeElementAttribute, ensureCorrectDomain, checkElementPresence, getAttributeValue, getFileSize, createDirectorySync, downloadFile } from '../../domain-specific-language/dsl-playwright';
 import { Page } from 'playwright';
 import { promises as fsPromises } from 'fs';
 import * as dotenv from 'dotenv';

@@ -4,7 +4,7 @@
  **/
 
 /** Imports */
-import { goTo, sendKeys, validateElementPresent, checkBox, randomWait, click, validateElementNotPresent, getTextFromElement, readFileContents, parseScenarios, debugMessage, debugMessage2, staticWait, changeElementAttribute, ensureCorrectDomain, checkElementPresence, getAttributeValue, getFileSize, createDirectorySync, downloadFile } from '../../tts-generate-audio/domain-specific-language/dsl';
+import { goTo, sendKeys, validateElementPresent, checkBox, randomWait, click, validateElementNotPresent, getTextFromElement, readFileContents, parseScenarios, debugMessage, debugMessage2, staticWait, changeElementAttribute, ensureCorrectDomain, checkElementPresence, getAttributeValue, getFileSize, createDirectorySync, downloadFile } from '../../domain-specific-language/dsl-playwright';
 import { Page } from 'playwright';
 import * as dotenv from 'dotenv';
 const base64ToImage = require('base64-to-image');

@@ -1,7 +1,7 @@
 # This file contains the main script for creating videos with sound.
 
 # Include the methods.ps1 file
-. .\src\video-generate\dsl.ps1
+. .\src\video-generate\generateVideoFromVideoFiles.ps1
 
 # Assing the path to the directory with video files (mp4) for processing. Call the value from the .env file.
 # In this directory, there must be subdirectories with video (mp4) files.
