@@ -5,7 +5,7 @@
 
 /** Imports */
 import path from 'path';
-import { goTo, sendKeys, checkBox, randomWait, click, isElementReadyForInteraction, getTextFromElement, readFileContents, parseScenarios, debugMessage, debugMessage2, staticWait, changeElementAttribute, ensureCorrectDomain, checkElementPresence, getAttributeValue, getFileSize, createDirectorySync, downloadFile } from '../../domain-specific-language/dsl-playwright';
+import { goTo, sendKeys, checkBox, randomWait, click, isElementReadyForInteraction, getTextFromElement, readFileContents, parseScenarios, debugMessage, debugMessage2, staticWait, changeElementAttribute, ensureCorrectDomain, checkElementPresence, getAttributeValue, getFileSize, createDirectorySync, downloadFile } from '../../domain-specific-language/dsl';
 import { Page } from 'playwright';
 import { promises as fsPromises } from 'fs';
 import * as dotenv from 'dotenv';
@@ -196,6 +196,7 @@ export async function ttsconverterIo(page: Page, minWaitTime: number, maxWaitTim
 
     // Define the path to the file containing the text to be converted to speach.
     const textForSpeachfilePath = path.join(__dirname, textForSpeachfilePathString);
+
     // Taking the text from the file and parsing it.
     const textFromFile = await readFileContents(textForSpeachfilePath);
     // Parse the text into scenarios. Each scenario is an object with a TTS property. The TTS property contains the text that will be converted to speach.

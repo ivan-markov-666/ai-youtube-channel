@@ -1,5 +1,7 @@
 /result
 /node_modules
-/02.generateTTS
+/02.generateTTS/converted
+/02.generateTTS/downloaded
+/02.generateTTS/final-audio
+/02.generateTTS/songs
 /videos
-.env

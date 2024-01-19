@@ -1,7 +1,7 @@
 /** This file wii be used to check the video format. You can use for analyze video files, before convert them to a standardized format. */
 
 // Import the necessary modules
-import { analyzeVideoFile } from './src/domain-specific-language/dsl-ts';
+import { analyzeVideoFile } from './src/domain-specific-language/dsl';
 import * as dotenv from 'dotenv';
 // Declare the process.env variable.
 dotenv.config();

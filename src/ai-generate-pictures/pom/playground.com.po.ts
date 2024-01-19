@@ -4,10 +4,12 @@
  **/
 
 /** Imports */
-import { goTo, sendKeys, validateElementPresent, checkBox, randomWait, click, validateElementNotPresent, getTextFromElement, readFileContents, parseScenarios, debugMessage, debugMessage2, staticWait, changeElementAttribute, ensureCorrectDomain, checkElementPresence, getAttributeValue, getFileSize, createDirectorySync, downloadFile } from '../../domain-specific-language/dsl-playwright';
+import { goTo, sendKeys, validateElementPresent, checkBox, randomWait, click, validateElementNotPresent, getTextFromElement, readFileContents, parseScenarios, debugMessage, debugMessage2, staticWait, changeElementAttribute, ensureCorrectDomain, checkElementPresence, getAttributeValue, getFileSize, createDirectorySync, downloadFile } from '../../domain-specific-language/dsl';
 import { Page } from 'playwright';
 import * as dotenv from 'dotenv';
+import path from 'path';
 const base64ToImage = require('base64-to-image');
+
 // Declare the process.env variable.
 dotenv.config();
 
@@ -27,6 +29,8 @@ if (!process.env.GOOGLE_PASSWORD) {
     throw new Error("GOOGLE_PASSWORD is not defined in your .env file");
 }
 const googlePassword = process.env.GOOGLE_PASSWORD;
+// The root directory of the project.
+const rootDirectory = path.resolve(__dirname, '../../..');
 
 
 /** Define locators */
@@ -61,28 +65,11 @@ const isPictureReadyForDownload_ValidationElement = `//*[@id='restore-options']`
 const x_button = `//*[contains(text(),'Skip')]/parent::li/following-sibling::li/button`;
 
 /**
- * @description         Facade function for the playground.com website that created pictures and downloads them to the local machine in the specified directory.
- * @param page          The page object.
- * @example             ttsconverterIo(page, 1000, 2000, 'C:/Users/username/Desktop/Project')
- */
-export async function playgroundCom(page: Page) {
-    // Login to the site.
-    await loginWithGoogle(page);
-    // Make preparations before generating the pictures.
-    await beforeGeneratePictures(page);
-    // Generate a picture.
-    await generatePicture(page);
-    // Download the picture.
-    await downloadPicture(page);
-    await staticWait(1000000);
-}
-
-/**
  * @description         Login to the playground.com website with google.
  * @param page          The page object.
  * @usage               await loginWithGoogle(page);
  */
-async function loginWithGoogle(page: Page) {
+export async function loginWithGoogle(page: Page) {
     // Navigate to 'https://playground.com/login'.
     await goTo(page, `${baseUrl}/login`);
     // Click the 'Login' button.
@@ -104,7 +91,7 @@ async function loginWithGoogle(page: Page) {
  * @param page          The page object.
  * @usage               await beforeGeneratePictures(page);
  */
-async function beforeGeneratePictures(page: Page) {
+export async function beforeGeneratePictures(page: Page) {
     // Navigate to 'https://playground.com/create'.
     await goTo(page, `${baseUrl}/create`);
     // Click the 'Filter' button.
@@ -114,15 +101,17 @@ async function beforeGeneratePictures(page: Page) {
 }
 
 /**
- * @description         Generate a picture.
- * @param page          The page object.
- * @usage               await generatePicture(page);
+ * @description                          Generate a picture.
+ * @param page                           The page object.
+ * @param prompt_TextField_Value         The value to be entered in the 'Prompt' text field.
+ * @param negativePrompt_TextField_Value The value to be entered in the 'Negative Prompt' text field.
+ * @usage                                await generatePicture(page);
  */
-async function generatePicture(page: Page) {
+export async function generatePicture(page: Page, prompt_TextField_Value: string, negativePrompt_TextField_Value: string) {
     // Fill the 'Prompt' text field with correct data.
-    await sendKeys(page, prompt_TextField, "A picture of a cat");
+    await sendKeys(page, prompt_TextField, prompt_TextField_Value);
     // Fill the 'Negative Prompt' text field with correct data.
-    await sendKeys(page, negativePrompt_TextField, "ugly, deformed, noisy, blurry, distorted, out of focus, bad anatomy, extra limbs, poorly drawn face, poorly drawn hands, missing fingers, ugly, deformed, noisy, blurry, distorted, grainy, text");
+    await sendKeys(page, negativePrompt_TextField, negativePrompt_TextField_Value);
     // Click the 'Generate' button.
     await click(page, generate_Button);
 }
@@ -171,11 +160,12 @@ async function waitGeneratePicture(page: Page) {
 }
 
 /**
- * @description         Download the picture.
- * @param page          The page object.
- * @usage               await downloadPicture(page);
+ * @description             Download the picture.
+ * @param page              The page object.
+ * @param pictureFileName   The name of the file under which the image will be saved.
+ * @usage                   await downloadPicture(page, pictureFileName);
  */
-async function downloadPicture(page: Page) {
+export async function downloadPicture(page: Page, pictureFileName: string) {
     // Wait until the image is ready for download.
     await waitGeneratePicture(page);
     // Close the voting images pop-up.
@@ -189,7 +179,7 @@ async function downloadPicture(page: Page) {
         throw new Error("downloadImage_Element_Value is not defined! Please check the 'downloadImage_Element' locator!");
     }
     // Download the picture by converting from base64 to image.
-    await base64PictureConvertor(downloadImage_Element_Value, 'C:/Users/test657/Desktop/script/03.generatePictures/downloaded/')
+    await base64PictureConvertor(downloadImage_Element_Value, `${rootDirectory}/03.generatePictures/downloaded/`, pictureFileName)
 }
 
 /**
@@ -197,12 +187,13 @@ async function downloadPicture(page: Page) {
  *
  * @param base64Str Base64 encoded string representing the image.
  * @param path The path where the converted image should be saved.
+ * @param pictureFileName The name of the file under which the image will be saved.
  * @returns A promise that resolves upon successful image saving.
  */
-async function base64PictureConvertor(base64Str: string, path: string): Promise<void> {
+async function base64PictureConvertor(base64Str: string, path: string, pictureFileName: string): Promise<void> {
     // Define the optional object.
     const optionalObj = {
-        'fileName': 'myImage',  // The name of the file under which the image will be saved.
+        'fileName': pictureFileName,   // The name of the file under which the image will be saved.
         'type': 'jpg',          // The format of the image.
         'debug': true           // Provides additional information for debugging.
     };

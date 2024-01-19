@@ -3,7 +3,7 @@
  */
 
 // Import the necessary modules
-import { trimVideos } from './src/domain-specific-language/dsl-ts';
+import { trimVideos } from './src/domain-specific-language/dsl';
 import * as dotenv from 'dotenv';
 // Declare the process.env variable.
 dotenv.config();
