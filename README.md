@@ -16,4 +16,4 @@ Please install the following technologies:
 3. PowerShell
 
 # Configuration
-!!! COMMING SOON !!!
+!!! COMING SOON !!!
