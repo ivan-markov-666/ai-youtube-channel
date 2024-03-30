@@ -1,44 +1,22 @@
-import ffmpeg from 'fluent-ffmpeg';
-import ffmpegStatic from 'ffmpeg-static';
-import fs from 'fs';
-import path from 'path';
+/*  This file will be used to split the video files into smaller parts.
+ *  The videos will be split into two parts. The first part will be taken from the beginning of the video file and it will be saved as result in the cut directory.
+ */
 
-let videoFolderPath = './videos/landscape/converted/';
-let ffMpegPath = 'C:/Program Files/FFmpeg/ffmpeg-2023-07-02-git-50f34172e0-full_build/bin/ffmpeg.exe';
+// Import the necessary modules
+import { trimVideos } from './src/video-generate/dsl';
+import * as dotenv from 'dotenv';
+// Declare the process.env variable.
+dotenv.config();
 
-// Настройка на пътя на ffmpeg
-ffmpeg.setFfmpegPath(ffmpegStatic || ffMpegPath);
-
-function ensureDirectoryExists(directoryPath: string) {
-    if (!fs.existsSync(directoryPath)) {
-        fs.mkdirSync(directoryPath, { recursive: true });
-        console.log(`Директорията ${directoryPath} беше създадена.`);
-    } else {
-        console.log(`Директорията ${directoryPath} вече съществува.`);
-    }
+// Check if the VIDEOS_CUT_FOLDER_PATH variable is defined in the .env file.
+if (!process.env.VIDEOS_CUT_FOLDER_PATH) {
+    throw new Error("VIDEOS_CUT_FOLDER_PATH is not defined in your .env file");
 }
 
-function trimVideos(directoryPath: string, maxDuration: number) {
-    const videoFiles = fs.readdirSync(directoryPath)
-        .filter(file => file.endsWith('.mp4'));
+// Assign the path to the directory containing the video files that will be split to a variable
+const videoFolderPath = process.env.VIDEOS_CUT_FOLDER_PATH;
+// The interval in seconds at which the video files should be split (this will be the duration of the result video files)
+const splitSeconds = 6;
 
-    // Създаване на папка за обрязаните видеоклипове
-    const cutDirectory = path.join(directoryPath, 'cut');
-    ensureDirectoryExists(cutDirectory);
-
-    videoFiles.forEach(file => {
-        const filePath = path.join(directoryPath, file);
-        const outputFilePath = path.join(cutDirectory, file);
-
-        ffmpeg(filePath)
-        .outputOptions([
-            '-t', maxDuration.toString() // Рязане на видеото до максималната продължителност
-        ])
-        .save(outputFilePath)
-            .on('end', () => console.log(`Обрязването на ${file} завършено.`))
-            .on('error', err => console.error(`Грешка при обрязването на ${file}: ${err.message}`));
-    });
-}
-
-// Примерна употреба на функцията
-trimVideos(videoFolderPath, 6); // Обрязване на всички видеоклипове до 6 секунди
+// Split the video files in two parts, and save the first part in the cut directory
+trimVideos(videoFolderPath, splitSeconds);

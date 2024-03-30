@@ -1,4 +1,5 @@
-/videos
 /result
 /node_modules
-/audio
+/02.generateTTS
+/videos
+.env

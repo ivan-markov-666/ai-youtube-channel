@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug generateTextContent",
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "args": [
+                "${workspaceFolder}/generateTextContent.ts"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "PowerShell: Debug video.ps1",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${workspaceFolder}/video.ps1",
+            "cwd": "${workspaceFolder}"
+        }
+        // You can add more configurations here
+    ]
+}
